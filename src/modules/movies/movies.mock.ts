@@ -1,0 +1,20 @@
+export const movieMock = JSON.stringify({
+  title: "Бриллиантовый полицейский",
+  plot: "Blue Streak Productions",
+  year: "1999",
+  director: "Les Mayfield",
+  actors: ['Martin Lawrence', 'Luke Wilson'],
+  poster: "https://i123.fastpic.org/big/2024/0614/06/48889d76c92559e1b24b58ea8b66c806.png",
+  trailer: "https://www.youtube.com/watch?v=TrwRAT5LtoM",
+  boxOffice: "",
+  released: "1999",
+  writer: "Les Mayfield",
+  runtime: "120",
+  ratingImdb: "6.9",
+  imdbId: "tt546547457",
+  rated: "pg-13",
+  genres: ['боевик', 'триллер', 'комедия', 'криминал'],
+  magnet: "e15a13efa66ebfd8b5551355f6de6324644c36ce",
+  fileName: "12421wrw",
+  sourceUrl: "https://rutor.info/torrent/988958/brilliantovyj-policejskij_blue-streak-1999-bdrip-ot-new-team-d"
+})
