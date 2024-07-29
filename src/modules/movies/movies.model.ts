@@ -1,14 +1,14 @@
-import {Schema, model} from 'mongoose'
-import { Movie } from './movie.interfaces'
+import { Schema, model } from 'mongoose'
+import { Movie } from './movies.interfaces'
 
 const entity = new Schema<Movie>({
   title: {
     type: String,
-    default: ''
+    deafult: ''
   },
   magnet: {
     type: String,
-    default: ''
+    deafult: ''
   },
   fileName: {
     type: String,
@@ -20,21 +20,21 @@ const entity = new Schema<Movie>({
   },
   plot: {
     type: String,
-    default: ''
+    deafult: ''
   },
   year: {
     type: String,
-    default: ''
+    deafult: ''
   },
   director: {
     type: String,
-    default: ''
+    deafult: ''
   },
   actors: [
     {
-    type: String,
-    default: ''
-  }
+      type: String,
+      deafult: ''
+    }
   ],
   backdrop: {
     type: String,
@@ -42,44 +42,44 @@ const entity = new Schema<Movie>({
   },
   poster: {
     type: String,
-    default: ''
+    deafult: ''
   },
   trailer: {
     type: String,
-    default: ''
+    deafult: ''
   },
   boxOffice: {
     type: String,
-    default: ''
+    deafult: ''
   },
   released: {
     type: String,
-    default: ''
+    deafult: ''
   },
   writer: {
     type: String,
-    default: ''
+    deafult: ''
   },
   runtime: {
     type: String,
-    default: ''
+    deafult: ''
   },
   ratingImdb: {
     type: String,
-    default: ''
+    deafult: ''
   },
-  imdbId:{
+  imdbId: {
     type: String,
-    default: ''
+    deafult: ''
   },
   rated: {
     type: String,
-    default: ''
+    deafult: ''
   },
   genres: [
     {
       type: String,
-      default: ''
+      deafult: ''
     }
   ]
 })

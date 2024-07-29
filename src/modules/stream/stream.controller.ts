@@ -5,113 +5,113 @@ const router = Router()
 const client = new WebTorrent()
 
 let state = {
-    progress: 0,
-    downloadSpeed: 0,
-    ratio: 0
+  progress: 0,
+  downloadSpeed: 0,
+  ratio: 0
 }
 
 let error
 
 client.on('error', (err: Error) => {
-    console.error('err', err.message)
-    error = err.message
+  console.error('err', err.message)
+  error = err.message
 })
 
 client.on('torrent', () => {
-    console.log(client.progress)
-    state = {
-        progress: Math.round(client.progress * 100 * 100) / 100,
-        downloadSpeed: client.downloadSpeed,
-        ratio: client.ratio
-    }
+  console.log(client.progress)
+  state = {
+    progress: Math.round(client.progress * 100 * 100) / 100,
+    downloadSpeed: client.downloadSpeed,
+    ratio: client.ratio
+  }
 })
 
 router.get('/add/:magnet', (req: Request, res: Response) => {
-    const magnet = req.params.magnet
+  const magnet = req.params.magnet
 
-    client.add(magnet, torrent => {
-        const files = torrent.files.map(data => ({
-            name: data.name,
-            length: data.length
-        }))
+  client.add(magnet, torrent => {
+    const files = torrent.files.map(data => ({
+      name: data.name,
+      length: data.length
+    }))
 
-        res.status(200).send(files)
-    })
+    res.status(200).send(files)
+  })
 })
 
 router.get('/stats', (req: Request, res: Response) => {
-    state = {
-        progress: Math.round(client.progress * 100 * 100) / 100,
-        downloadSpeed: client.downloadSpeed,
-        ratio: client.ratio
-    }
-    res.status(200).send(state)
+  state = {
+    progress: Math.round(client.progress * 100 * 100) / 100,
+    downloadSpeed: client.downloadSpeed,
+    ratio: client.ratio
+  }
+  res.status(200).send(state)
 })
 
 // stream
 interface StreamRequest extends Request {
-    params: {
-        magnet: string
-        fileName: string
-    }
-    headers: {
-        range: string
-    }
+  params: {
+    magnet: string
+    fileName: string
+  }
+  headers: {
+    range: string
+  }
 }
 
 interface ErrorWithStatus extends Error {
-    status: number
+  status: number
 }
 router.get('/:magnet/:fileName', (req: StreamRequest, res: Response, next: NextFunction) => {
-    const {
-        params: { magnet, fileName },
-        headers: { range }
-    } = req
+  const {
+    params: { magnet, fileName },
+    headers: { range }
+  } = req
 
-    if (!range) {
-        const err = new Error('Range is not defined, please make request from HTML5 Player') as ErrorWithStatus
-        err.status = 416
-        return next(err)
+  if (!range) {
+    const err = new Error('Range is not defined, please make request from HTML5 Player') as ErrorWithStatus
+    err.status = 416
+    return next(err)
+  }
+
+  const torrentFile = client.get(magnet) as Torrent
+  let file = <TorrentFile>{}
+
+  for (let i = 0; i < torrentFile.files.length; i++) {
+    const currentTorrentPiece = torrentFile.files[i]
+    if (currentTorrentPiece.name === fileName) {
+      file = currentTorrentPiece
     }
+  }
+  const fileSize = file.length
+  const [startParsed, endParsed] = range.replace(/bytes=/, '').split('-')
 
-    const torrentFile = client.get(magnet) as Torrent
-    let file = <TorrentFile>{}
+  const start = Number(startParsed)
+  const end = endParsed ? Number(endParsed) : fileSize - 1
 
-    for (let i = 0; i < torrentFile.files.length; i++) {
-        const currentTorrentPiece = torrentFile.files[i]
-        if (currentTorrentPiece.name === fileName) {
-            file = currentTorrentPiece
-        }
-    }
-    const fileSize = file.length
-    const [startParsed, endParsed] = range.replace(/bytes=/, '').split('-')
+  const chunkSize = end - start + 1
 
-    const start = Number(startParsed)
-    const end = endParsed ? Number(endParsed) : fileSize - 1
+  const headers = {
+    'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+    'Accept-Ranges': 'bytes',
+    'Content-Length': chunkSize,
+    'Content-Type': 'video/mp4'
+  }
 
-    const chunkSize = end - start + 1
+  res.writeHead(206, headers)
 
-    const headers = {
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': chunkSize,
-        'Content-Type': 'video/mp4'
-    }
+  const streamPositions = {
+    start,
+    end
+  }
 
-    res.writeHead(206, headers)
+  const stream = file.createReadStream(streamPositions)
 
-    const streamPositions = {
-        start,
-        end
-    }
+  stream.pipe(res)
 
-    const stream = file.createReadStream(streamPositions)
-
-    stream.pipe(res)
-
-    stream.on('error', err => {
-        return next(err)
-    })
+  stream.on('error', err => {
+    return next(err)
+  })
 })
 
 export default router

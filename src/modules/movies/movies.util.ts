@@ -1,4 +1,3 @@
-import { query } from 'express'
 import { parse } from 'qs'
 import { MAGNET_KEY, SPLIT_MAGNET_STRING } from './movies.const'
 
